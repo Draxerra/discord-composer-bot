@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "target": "esnext",
+        "module": "commonjs",
+        "outDir": "./dist",
+        "resolveJsonModule": true,
+        "baseUrl": "./src",
+        "paths": {
+          "~*": ["./*"]
+        },
+    }
+}
