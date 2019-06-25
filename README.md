@@ -1,4 +1,4 @@
-# Discord Composer Bot
+# Discord Composer Bot (WIP)
 
 The Discord Composer Bot allows users to create their own music through messages, with the ability to have it playback to them via a voice channel.
 
