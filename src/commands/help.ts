@@ -9,7 +9,7 @@ export default {
             msg.reply(commandFiles.map(commandFile => commandFile.name).join(", "));
         } catch (err) {
             console.error(err);
-            msg.reply("Oh no! Something went wrong. :(");
+            msg.reply("oh no! Something went wrong. :(");
         }
     },
 } as ICommand;

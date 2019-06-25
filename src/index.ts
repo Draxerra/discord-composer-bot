@@ -20,10 +20,10 @@ client.on("message", async msg => {
                 const file = (await import("./commands/" + commandFile.filename)).default as ICommand;
                 file.run(msg, client, command.slice(1));
             } else {
-                msg.reply("Invalid command! Type help for a list of commands.");
+                msg.reply("invalid command! Type help for a list of commands.");
             }
         } catch (err) {
-            msg.reply("Oh no! Something went wrong! :(");
+            msg.reply("oh no! Something went wrong! :(");
         }
     }
 });
