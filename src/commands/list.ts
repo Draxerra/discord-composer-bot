@@ -1,5 +1,5 @@
-import ICommand from "~/types/command";
-import Midi from "~/data/midi";
+import ICommand from "types/command";
+import Midi from "data/midi";
 
 export default {
     name: "list",

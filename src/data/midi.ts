@@ -1,3 +1,3 @@
-import INote from "~/types/note";
+import INote from "types/note";
 
-export default [];
+export default [] as INote[];

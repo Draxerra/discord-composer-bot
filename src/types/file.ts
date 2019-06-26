@@ -1,4 +1,4 @@
-export default interface ICommandFile {
+export default interface IFile {
     filename: string;
     name: string;
 }

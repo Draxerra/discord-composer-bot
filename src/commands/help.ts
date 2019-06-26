@@ -1,5 +1,5 @@
-import ICommand from "~/types/command";
-import CommandFiles from "~/data/commandFiles";
+import ICommand from "types/command";
+import CommandFiles from "data/commandFiles";
 
 export default {
     name: "help",

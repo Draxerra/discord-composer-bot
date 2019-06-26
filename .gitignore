@@ -1,5 +1,5 @@
 node_modules
 dist
-src/soundfonts/*.sf2
+src/soundfonts/*
 .cache
 config.json

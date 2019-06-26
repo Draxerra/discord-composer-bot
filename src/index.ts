@@ -1,8 +1,8 @@
 import * as Discord from "discord.js";
 import * as Config from "../config.json";
 
-import CommandFiles from "~/data/commandFiles";
-import ICommand from "~/types/command";
+import CommandFiles from "data/commandFiles";
+import ICommand from "types/command";
 
 const client = new Discord.Client();
 
@@ -23,6 +23,7 @@ client.on("message", async msg => {
                 msg.reply("invalid command! Type help for a list of commands.");
             }
         } catch (err) {
+            console.error(err);
             msg.reply("oh no! Something went wrong! :(");
         }
     }

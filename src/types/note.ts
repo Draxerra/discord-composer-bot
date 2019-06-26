@@ -1,5 +1,5 @@
 export default interface INote {
-    pitch: string | string[];
+    pitch: string[];
     duration: string | string[];
     wait?: string | string[];
     sequential?: boolean;
