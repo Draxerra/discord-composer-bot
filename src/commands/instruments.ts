@@ -1,8 +1,9 @@
 import ICommand from "types/command";
-import Soundfonts from "data/soundfonts";
+import Soundfonts from "soundfonts";
 
-export default {
+export const instruments = {
     name: "instruments",
+    description: "",
     run: async(msg) => {
         try {
             const soundfonts = await Soundfonts;

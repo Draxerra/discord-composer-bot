@@ -1,9 +1,13 @@
+import { CleanWebpackPlugin } from "clean-webpack-plugin";
+import * as CopyWebpackPlugin from "copy-webpack-plugin";
 import { resolve } from "path";
+import * as ProgressBarPlugin from "progress-bar-webpack-plugin";
 import { TsconfigPathsPlugin } from "tsconfig-paths-webpack-plugin";
 import { Configuration } from "webpack";
 import * as nodeExternals from "webpack-node-externals";
 
 module.exports = {
+    devtool: "source-map",
     target: "node",
     mode: "production",
     entry: "./src/index.ts",
@@ -23,5 +27,17 @@ module.exports = {
         extensions: [".ts", ".js", ".json"],
         plugins: [new TsconfigPathsPlugin()]
     },
-    externals: [nodeExternals()]
+    plugins: [
+        new CopyWebpackPlugin([{
+            cache: true,
+            from: "src/soundfonts",
+            ignore: ['*.js', '*.ts']
+        }]),
+        new ProgressBarPlugin(),
+        new CleanWebpackPlugin()
+    ],
+    externals: [nodeExternals()],
+    node: {
+        __dirname: false
+    }
 } as Configuration;

@@ -1,11 +1,12 @@
 import { spawn } from "child_process";
 import { NoteEvent, Track, Writer } from "midi-writer-js";
 import Midi from "data/midi";
-import Soundfonts from "data/soundfonts";
+import Soundfonts from "soundfonts";
 import ICommand from "types/command";
 
-export default {
+export const play = {
     name: "play",
+    description: "",
     run: async(msg, client, args) => {
         if (!msg.member.voiceChannel) {
             msg.reply("you need to join a voice channel first!");

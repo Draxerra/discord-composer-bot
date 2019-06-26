@@ -2,7 +2,7 @@
   "name": "discord-composer",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "",
   "scripts": {
     "build": "webpack",
     "dev": "ts-node-dev --respawn -r tsconfig-paths/register src/index.ts",
@@ -17,9 +17,13 @@
     "node-opus": "^0.3.2"
   },
   "devDependencies": {
+    "@types/copy-webpack-plugin": "^5.0.0",
     "@types/node": "^12.0.10",
     "@types/webpack": "^4.4.34",
     "@types/webpack-node-externals": "^1.6.3",
+    "clean-webpack-plugin": "^3.0.0",
+    "copy-webpack-plugin": "^5.0.3",
+    "progress-bar-webpack-plugin": "^1.12.1",
     "ts-loader": "^6.0.4",
     "ts-node-dev": "^1.0.0-pre.40",
     "tsconfig-paths": "^3.8.0",

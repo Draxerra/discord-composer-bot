@@ -1,9 +1,9 @@
-import { NoteEvent } from "midi-writer-js";
 import ICommand from "types/command";
 import Midi from "data/midi";
 
-export default {
+export const add = {
     name: "add",
+    description: "",
     run: (msg, client, args) => {
         const pitch = args[0];
         const duration = args[1] || 128;

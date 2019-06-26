@@ -1,12 +1,13 @@
 import ICommand from "types/command";
-import CommandFiles from "data/commandFiles";
+import * as commands from "commands";
 
-export default {
+export const help = {
     name: "help",
+    description: "",
     run: async(msg) => {
         try {
-            const commandFiles = await CommandFiles;
-            msg.reply(commandFiles.map(commandFile => commandFile.name).join(", "));
+            const list = Object.values(commands).map(command => command.name);
+            msg.reply(list.join(", "));
         } catch (err) {
             console.error(err);
             msg.reply("oh no! Something went wrong. :(");
