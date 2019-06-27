@@ -1,3 +1,4 @@
-import INote from "types/note";
+import ITrack from "types/track";
+import { Track } from "midi-writer-js";
 
-export default [] as INote[];
+export default [new Track()] as ITrack[];

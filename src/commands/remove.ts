@@ -5,7 +5,15 @@ export const remove = {
     name: "remove",
     description: "",
     run: (msg, client, args) => {
-        const removedNote = Midi.splice(parseInt(args[0]) - 1, 1)[0];
-        msg.reply(`successfully removed ${removedNote.pitch.join(" ")}!`);
+        const indexToRemove = parseInt(args[0]) - 1;
+        const notesToRemove = Midi[0].events.filter(ev => ev.index === indexToRemove && ev.type === "note-on")
+            .map(ev => ev.pitch).join("+");
+        Midi[0].events = Midi[0].events.filter(ev => {
+            return ev.index !== indexToRemove;
+        }).map(ev => {
+            ev.index = ev.index > indexToRemove ? ev.index - 1 : ev.index;
+            return ev;
+        });
+        msg.reply(`successfully removed ${indexToRemove + 1}. ${notesToRemove}!`);
     },
 } as ICommand;

@@ -20,11 +20,15 @@ export const play = {
             const soundfonts = await Soundfonts;
             const soundfont = soundfonts.find(file => file.name === (args[0] || "").toLowerCase()) || soundfonts[0];
             const connection = await msg.member.voiceChannel.join();
-    
-            const track = new Track();
-            track.addEvent(Midi.map(midi => new NoteEvent(midi)));
-    
-            const writer = new Writer([track]);
+
+            const writer = new Writer(Midi);
+            console.log(writer);
+
+            // const writer = new Writer(Midi.map(t => {
+            //     const track = new Track();
+            //     track.addEvent(t.map(note => new NoteEvent(note)));
+            //     return track;
+            // }));
             const buffer = Buffer.from(writer.buildFile(), "binary");
     
             const timidity = spawn("timidity", ["-x", `soundfont ./src/soundfonts/${soundfont.filename}`, "-s", "96000", "-", "-Ow", "-o", "-"]);

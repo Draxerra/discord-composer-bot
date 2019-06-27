@@ -6,7 +6,7 @@ export const list = {
     description: "",
     run: (msg, client, args) => {
         if (Midi.length) {
-            msg.reply(Midi.map((note, i) => `${i+1}. ${note.pitch.join("+")}`));
+            //msg.reply(Midi.map((note, i) => `${i+1}. ${note.pitch.join("+")}`));
         } else {
             msg.reply("there are no notes added!");
         }
