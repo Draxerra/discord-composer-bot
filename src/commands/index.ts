@@ -1,5 +1,6 @@
 export * from "./add-track";
 export * from "./add";
+export * from "./edit";
 export * from "./help";
 export * from "./instruments";
 export * from "./list";

@@ -22,9 +22,10 @@ export interface INoteEvent {
     type: string;
     channel: number;
     pitch: string;
-    wait: number;
+    wait?: string;
     velocity: number;
     startTick?: number;
+    duration?: string;
     midiNumber: number;
     tick?: number;
     delta?: number;

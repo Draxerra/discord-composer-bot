@@ -58,7 +58,9 @@ export const play = {
     
             dispatcher.on("end", () => {
                 msg.member.voiceChannel.leave();
-                Midi.forEach(midi => midi.events = midi.events.filter(ev => ev.type !== "end-track"));
+                Midi.forEach(midi => {
+                    midi.events = midi.events.filter(ev => ev.type !== "end-track");
+                });
             });
         } catch (err) {
             console.error(err);

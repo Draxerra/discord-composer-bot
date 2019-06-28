@@ -4,18 +4,18 @@ import { parseArgs } from "data/args";
 
 interface IRemoveArgs {
     track: number;
-    number: number;
+    note: number;
 }
 
 export const remove = {
     name: "remove",
-    description: "Removes a note (e.g. remove track=2 number=3)",
+    description: "Removes a note (e.g. remove note=3 track=2)",
     args: [{
-        name: "track",
+        name: "note",
         type: Number,
         required: true
     }, {
-        name: "number",
+        name: "track",
         type: Number,
         required: true
     }],
@@ -24,12 +24,15 @@ export const remove = {
         if (parsedArgs instanceof Error) {
             msg.reply(parsedArgs);
         } else {
-            const index = parsedArgs.number - 1;
+            const index = parsedArgs.note - 1;
             const track = parsedArgs.track - 1;
+            if (!Midi[track]) {
+                msg.reply("invalid track number!");
+            }
             const notesToRemove = Midi[track].events.filter(ev => ev.index === index && ev.type === "note-on")
                 .map(ev => ev.pitch).join("+");
             Midi[track] = removeIndex(Midi[track], index);
-            msg.reply(`successfully removed ${parsedArgs.number}. ${notesToRemove} from track ${parsedArgs.track}!`);
+            msg.reply(`successfully removed ${parsedArgs.note}. ${notesToRemove} from track ${parsedArgs.track}!`);
         }
     },
 } as ICommand;

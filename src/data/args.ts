@@ -7,10 +7,10 @@ export function parseArgs<T>(argTypes: IArgType[], argValues: string[]): T | Err
             if (argValue) {
                 const val = argValue.split("=").pop();
                 const parsedVal = argType.type === Number ? parseInt(val) : val;
-                if (parsedVal) {
+                if (parsedVal !== undefined) {
                     acc[argType.name] = parsedVal;
                 }
-            } else if (argType.default) {
+            } else if (argType.default !== undefined) {
                 acc[argType.name] = argType.default;
             } else if (argType.required) {
                 throw new Error(`you must specify a ${argType.name}!`);

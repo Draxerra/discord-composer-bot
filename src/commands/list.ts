@@ -8,11 +8,16 @@ export const list = {
     run: (msg) => {
         if (Midi.length) {
             Midi.map((track, i) => {
-                const notes = track.events.filter(note => note.type === "note-off").reduce((acc: INoteEvent[], note) => {
+                const notes = track.events.reduce((acc: INoteEvent[], note) => {
                     if (!acc[note.index]) {
                         acc[note.index] = {...note};
-                    } else {
+                    } else if (acc[note.index].type === note.type) {
                         acc[note.index].pitch = `${acc[note.index].pitch}+${note.pitch}`;
+                    }
+                    if(note.type === "note-off" && acc[note.index].duration === undefined) {
+                        acc[note.index].duration = note.duration;
+                    } else if (note.type === "note-on" && acc[note.index].wait === null) {
+                        acc[note.index].wait = note.wait;
                     }
                     return acc;
                 }, []);
@@ -23,7 +28,7 @@ export const list = {
                         description: !notes.length ? "No notes added" : undefined,
                         fields: notes.map((note, j) => ({
                             name: `Note ${j+1}`,
-                            value: `${note.pitch} (Duration: ${note.delta}, Velocity: ${note.velocity})`
+                            value: `${note.pitch} (Duration: ${note.duration.slice(1)}, Wait: ${note.wait.slice(1)}, Velocity: ${note.velocity})`
                         }))
                     }
                 };
