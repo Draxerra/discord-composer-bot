@@ -32,16 +32,23 @@ export const play = {
             msg.reply("you need to join a voice channel first!");
             return;
         }
-        if (!Midi.length) {
+
+        const tracks = parsedArgs.tracks.split("+").map(arg => parseInt(arg));
+        const midi = Midi.filter((midi, i) => tracks.includes(i+1));
+        if (midi.every((midi) => midi.events.length === 0)) {
             msg.reply("you need to add some notes first!");
             return;
         }
         try {
             const soundfonts = await Soundfonts;
             const soundfont = soundfonts.find(file => file.name === parsedArgs.instrument.toLowerCase());
+            if (!soundfont) {
+                msg.reply("instrument does not exist!");
+                return;
+            }
             const connection = await msg.member.voiceChannel.join();
 
-            const writer = new Writer(Midi);
+            const writer = new Writer(midi);
             const buffer = Buffer.from(writer.buildFile(), "binary");
     
             const timidity = spawn("timidity", ["-x", `soundfont ./src/soundfonts/${soundfont.filename}`, "-s", "96000", "-", "-Ow", "-o", "-"]);
@@ -49,7 +56,10 @@ export const play = {
             msg.reply(`here's your track so far using the ${soundfont.name} soundfont...`);
             const dispatcher = connection.playStream(timidity.stdout, { passes: 4, volume: 0.8, bitrate: 96000 });
     
-            dispatcher.on("end", () => msg.member.voiceChannel.leave());
+            dispatcher.on("end", () => {
+                msg.member.voiceChannel.leave();
+                Midi.forEach(midi => midi.events = midi.events.filter(ev => ev.type !== "end-track"));
+            });
         } catch (err) {
             console.error(err);
             msg.reply("oh no! something went wrong :(");
