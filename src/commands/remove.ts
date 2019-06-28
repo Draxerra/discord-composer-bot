@@ -1,19 +1,15 @@
 import ICommand from "types/command";
-import Midi from "data/midi";
+import Midi, { removeIndex } from "data/midi";
 
 export const remove = {
     name: "remove",
     description: "",
     run: (msg, client, args) => {
-        const indexToRemove = parseInt(args[0]) - 1;
-        const notesToRemove = Midi[0].events.filter(ev => ev.index === indexToRemove && ev.type === "note-on")
+        const track = parseInt(args[0]) - 1;
+        const index = parseInt(args[1]) - 1;
+        const notesToRemove = Midi[track].events.filter(ev => ev.index === index && ev.type === "note-on")
             .map(ev => ev.pitch).join("+");
-        Midi[0].events = Midi[0].events.filter(ev => {
-            return ev.index !== indexToRemove;
-        }).map(ev => {
-            ev.index = ev.index > indexToRemove ? ev.index - 1 : ev.index;
-            return ev;
-        });
-        msg.reply(`successfully removed ${indexToRemove + 1}. ${notesToRemove}!`);
+        Midi[track] = removeIndex(Midi[track], index);
+        msg.reply(`successfully removed ${index + 1}. ${notesToRemove} from track ${track + 1}!`);
     },
 } as ICommand;
