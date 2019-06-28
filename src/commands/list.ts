@@ -4,8 +4,8 @@ import { INoteEvent } from "types/track";
 
 export const list = {
     name: "list",
-    description: "",
-    run: (msg, client, args) => {
+    description: "Lists the current tracks",
+    run: (msg) => {
         if (Midi.length) {
             const notesStr = Midi.reduce((acc, track, i) => {
                 const notes = track.events.filter(note => note.type === "note-on").reduce((acc: INoteEvent[], note) => {

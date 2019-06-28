@@ -3,14 +3,20 @@ import * as commands from "commands";
 
 export const help = {
     name: "help",
-    description: "",
-    run: async(msg) => {
-        try {
-            const list = Object.values(commands).map(command => command.name);
-            msg.reply(list.join(", "));
-        } catch (err) {
-            console.error(err);
-            msg.reply("oh no! Something went wrong. :(");
-        }
+    description: "Lists all the available commands",
+    run: msg => {
+        msg.channel.send({embed: {
+            color: 3447003,
+            title: "Available Commands",
+            fields: Object.values(commands).map(command => {
+                const args = command.args ? command.args.reduce((acc, arg) => {
+                    return `${acc} ${arg.name}=[]`;
+                }, "") : "";
+                return {
+                    name: command.name + args,
+                    value: command.description
+                };
+            })
+        }});
     },
 } as ICommand;

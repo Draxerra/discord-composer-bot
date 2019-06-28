@@ -1,13 +1,33 @@
 import { spawn } from "child_process";
-import { NoteEvent, Track, Writer } from "midi-writer-js";
+import { Writer } from "midi-writer-js";
 import Midi from "data/midi";
 import Soundfonts from "soundfonts";
 import ICommand from "types/command";
+import { parseArgs } from "data/args";
+
+interface IPlayArgs {
+    instrument: string;
+    tracks: string;
+}
 
 export const play = {
     name: "play",
-    description: "",
+    description: "Plays the specified tracks (e.g. play instrument=guitar tracks=1+2)",
+    args: [{
+        name: "instrument",
+        type: String,
+        default: "piano"
+    }, {
+        name: "tracks",
+        type: String,
+        default: "1"
+    }],
     run: async(msg, client, args) => {
+        const parsedArgs = parseArgs<IPlayArgs>(play.args, args);
+        if (parsedArgs instanceof Error) {
+            msg.reply(parsedArgs.message);
+            return;
+        }
         if (!msg.member.voiceChannel) {
             msg.reply("you need to join a voice channel first!");
             return;
@@ -18,17 +38,10 @@ export const play = {
         }
         try {
             const soundfonts = await Soundfonts;
-            const soundfont = soundfonts.find(file => file.name === (args[0] || "").toLowerCase()) || soundfonts[0];
+            const soundfont = soundfonts.find(file => file.name === parsedArgs.instrument.toLowerCase());
             const connection = await msg.member.voiceChannel.join();
 
             const writer = new Writer(Midi);
-            console.log(writer);
-
-            // const writer = new Writer(Midi.map(t => {
-            //     const track = new Track();
-            //     track.addEvent(t.map(note => new NoteEvent(note)));
-            //     return track;
-            // }));
             const buffer = Buffer.from(writer.buildFile(), "binary");
     
             const timidity = spawn("timidity", ["-x", `soundfont ./src/soundfonts/${soundfont.filename}`, "-s", "96000", "-", "-Ow", "-o", "-"]);

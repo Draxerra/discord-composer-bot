@@ -3,7 +3,7 @@ import Soundfonts from "soundfonts";
 
 export const instruments = {
     name: "instruments",
-    description: "",
+    description: "Lists all the available instruments",
     run: async(msg) => {
         try {
             const soundfonts = await Soundfonts;
