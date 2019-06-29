@@ -15,7 +15,7 @@ export const removeTrack = {
         required: true
     }],
     run: (msg, client, args) => {
-        const parsedArgs = parseArgs<IRemoveTrackArgs>(removeTrack.args, args);
+        const parsedArgs = parseArgs<IRemoveTrackArgs>(removeTrack.args || [], args);
         if (parsedArgs instanceof Error) {
             msg.reply(parsedArgs);
         } else {

@@ -30,5 +30,5 @@ export interface INoteEvent {
     tick?: number;
     delta?: number;
     data?: any;
-    index?: number;
+    index: number;
 }

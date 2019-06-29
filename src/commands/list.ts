@@ -28,7 +28,7 @@ export const list = {
                         description: !notes.length ? "No notes added" : undefined,
                         fields: notes.map((note, j) => ({
                             name: `Note ${j+1}`,
-                            value: `${note.pitch} (Duration: ${note.duration.slice(1)}, Wait: ${note.wait.slice(1)}, Velocity: ${note.velocity})`
+                            value: `${note.pitch} (Duration: ${(note.duration || "T0").slice(1)}, Wait: ${(note.wait || "T0").slice(1)}, Velocity: ${note.velocity})`
                         }))
                     }
                 };

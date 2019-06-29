@@ -20,7 +20,7 @@ export const remove = {
         required: true
     }],
     run: (msg, client, args) => {
-        const parsedArgs = parseArgs<IRemoveArgs>(remove.args, args);
+        const parsedArgs = parseArgs<IRemoveArgs>(remove.args || [], args);
         if (parsedArgs instanceof Error) {
             msg.reply(parsedArgs);
         } else {

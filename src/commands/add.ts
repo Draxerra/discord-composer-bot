@@ -40,7 +40,7 @@ export const add = {
         type: Number
     }],
     run: (msg, client, args) => {
-        const parsedArgs = parseArgs<IAddArgs>(add.args, args);
+        const parsedArgs = parseArgs<IAddArgs>(add.args || [], args);
         if (parsedArgs instanceof Error) {
             msg.reply(parsedArgs.message);
         } else {
@@ -52,7 +52,7 @@ export const add = {
                 return;
             }
             const last = Midi[track].events[Midi[track].events.length-1];
-            if (before < 1 || before - 1 > (last ? last.index : -1)) {
+            if (before !== undefined && (before < 1 || before - 1 > (last ? last.index : -1))) {
                 msg.reply("cannot move note before this note as it does not exist!");
                 return;
             }

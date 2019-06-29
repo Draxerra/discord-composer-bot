@@ -22,7 +22,7 @@ export const play = {
         default: "1"
     }],
     run: async(msg, client, args) => {
-        const parsedArgs = parseArgs<IPlayArgs>(play.args, args);
+        const parsedArgs = parseArgs<IPlayArgs>(play.args || [], args);
         if (parsedArgs instanceof Error) {
             msg.reply(parsedArgs.message);
             return;

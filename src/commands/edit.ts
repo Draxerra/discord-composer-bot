@@ -42,7 +42,7 @@ export const edit = {
         type: Number
     }],
     run: (msg, client, args) => {
-        const parsedArgs = parseArgs<IEditArgs>(edit.args, args);
+        const parsedArgs = parseArgs<IEditArgs>(edit.args || [], args);
         if (parsedArgs instanceof Error) {
             msg.reply(parsedArgs.message);
         } else {
@@ -66,9 +66,9 @@ export const edit = {
                 if (ev.type === "note-on") {
                     acc.pitch = acc.pitch !== undefined ? `${acc.pitch}+${ev.pitch}` : ev.pitch;
                 }
-                acc.duration = acc.duration !== undefined ? acc.duration : ev.duration;
-                acc.velocity = acc.velocity !== undefined ? acc.velocity : ev.velocity;
-                acc.wait = acc.wait !== undefined ? acc.wait : ev.wait;
+                acc.duration = acc.duration !== undefined ? acc.duration : (ev.duration === undefined ? "T0" : ev.duration);
+                acc.velocity = acc.velocity !== undefined ? acc.velocity : (ev.velocity === undefined ? 80 : ev.velocity);
+                acc.wait = acc.wait !== undefined ? acc.wait : (ev.wait === undefined ? "T0" : ev.wait);
                 return acc;
             }, {} as INote);
             const parsedEvent = {

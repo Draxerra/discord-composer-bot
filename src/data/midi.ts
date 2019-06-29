@@ -29,7 +29,6 @@ export const swapIndex = (midi: ITrack, indexToSwap: number, indexToSwapTo: numb
             evClone.index = indexToSwapTo;
             return evClone;
         });
-    console.log(lastEvents);
     midi.events = [...beforeEvents, ...lastEvents, ...afterEvents];
     return midi;
 };
