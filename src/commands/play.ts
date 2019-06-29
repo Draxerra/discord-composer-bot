@@ -15,8 +15,7 @@ export const play = {
     description: "Plays the specified tracks (e.g. play instrument=guitar tracks=1+2)",
     args: [{
         name: "instrument",
-        type: String,
-        default: "piano"
+        type: String
     }, {
         name: "tracks",
         type: String,
@@ -41,7 +40,8 @@ export const play = {
         }
         try {
             const soundfonts = await Soundfonts;
-            const soundfont = soundfonts.find(file => file.name === parsedArgs.instrument.toLowerCase());
+            const instrument = parsedArgs.instrument || soundfonts[0].name;
+            const soundfont = soundfonts.find(file => file.name === instrument.toLowerCase());
             if (!soundfont) {
                 msg.reply("instrument does not exist!");
                 return;
