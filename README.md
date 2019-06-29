@@ -4,7 +4,7 @@ The Discord Composer Bot allows users to create their own music through messages
 
 ## Prerequisites
 
-The application requires [Node.js](https://nodejs.org/en/download/), [ffmpeg](https://ffmpeg.org/download.html) and [Timidity++](https://sourceforge.net/projects/timidity/).
+The application requires [Node.js](https://nodejs.org/en/download/), [ffmpeg](https://ffmpeg.org/download.html) and [Timidity++](https://sourceforge.net/projects/timidity/). You'll need to ensure all of these are available on your path environment variable.
 
 Fill out the config in `config.sample.json` and rename it to `config.json`. The settings will be determined by this file.
 
