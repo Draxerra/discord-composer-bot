@@ -51,7 +51,7 @@ export const play = {
             const writer = new Writer(midi);
             const buffer = Buffer.from(writer.buildFile(), "binary");
     
-            const timidity = spawn("timidity", ["-x", `soundfont ./src/soundfonts/${soundfont.filename}`, "-s", "96000", "-", "-Ow", "-o", "-"]);
+            const timidity = spawn("timidity", ["-x", `soundfont ./src/soundfonts/${soundfont.filename}`, "-s", "65000", "-", "-Ow", "-o", "-"]);
             timidity.stdin.write(buffer);
             msg.reply(`here's your track so far using the ${soundfont.name} soundfont...`);
             const dispatcher = connection.playStream(timidity.stdout, { passes: 4, volume: 0.8, bitrate: 96000 });
