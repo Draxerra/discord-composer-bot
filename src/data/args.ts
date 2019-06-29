@@ -7,12 +7,19 @@ export function parseArgs<T>(argTypes: IArgType[], argValues: string[]): T | Err
             if (argValue) {
                 const val = argValue.split("=").pop();
                 const parsedVal = argType.type === Number ? parseInt(val) : val;
-                if (parsedVal !== undefined) {
+                if (typeof parsedVal === "number" && Number.isNaN(parsedVal)) {
+                    throw new Error(`you must specify a valid ${argType.name}!`);
+                }
+                if (typeof parsedVal === "string" && !Number.isNaN(parseInt(val))) {
+                    throw new Error(`you must specify a valid ${argType.name}!`);
+                }
+                if (typeof parsedVal === "string" || typeof parsedVal === "number") {
                     acc[argType.name] = parsedVal;
                 }
             } else if (argType.default !== undefined) {
                 acc[argType.name] = argType.default;
-            } else if (argType.required) {
+            }
+            if (argType.required && acc[argType.name] === undefined) {
                 throw new Error(`you must specify a ${argType.name}!`);
             }
             return acc;

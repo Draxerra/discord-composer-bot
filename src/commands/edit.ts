@@ -1,8 +1,8 @@
 import ICommand from "types/command";
-import Midi, { swapIndex } from "data/midi";
-import { toMidi } from "tonal-midi";
+import Midi, { addIndex, swapIndex, removeIndex } from "data/midi";
 import { parseArgs } from "data/args";
-import { clone } from "lodash";
+import { NoteEvent } from "midi-writer-js";
+import { INote } from "types/track";
 
 interface IEditArgs {
     note: number;
@@ -50,22 +50,39 @@ export const edit = {
             const track = parsedArgs.track - 1;
             if (!Midi[track]) {
                 msg.reply("invalid track number!");
+                return;
             }
-            Midi[track].events = Midi[track].events.map(ev => {
-                if (ev.index === index) {
-                    const evClone = clone(ev);
-                    evClone.pitch = parsedArgs.pitch ? parsedArgs.pitch : evClone.pitch;
-                    evClone.midiNumber = parsedArgs.pitch ? toMidi(parsedArgs.pitch) : evClone.midiNumber;
-                    evClone.duration = parsedArgs.duration !== undefined && ev.duration !== null ? "T" + parsedArgs.duration : evClone.duration;
-                    evClone.delta = parsedArgs.duration && ev.duration !== null ? parsedArgs.duration : evClone.delta;
-                    evClone.wait = parsedArgs.wait !== undefined && typeof ev.wait === "string" ? "T" + parsedArgs.wait : evClone.wait;
-                    evClone.velocity = parsedArgs.velocity !== undefined ? parsedArgs.velocity : evClone.velocity;
-                    return evClone;
+            if (!Midi[track].events.some(ev => ev.index === index)) {
+                msg.reply("note number does not exist!");
+                return;
+            }
+            const lastIndex = Midi[track].events[Midi[track].events.length-1];
+            if (parsedArgs.before !== undefined &&
+                (parsedArgs.before - 1 < 1 || parsedArgs.before - 1 > (lastIndex ? lastIndex.index : -1))) {
+                msg.reply("cannot move note before this note as it does not exist!");
+                return;
+            }
+            const event = Midi[track].events.filter(ev => ev.index === index).reduce((acc: INote, ev) => {
+                if (ev.type === "note-on") {
+                    acc.pitch = acc.pitch !== undefined ? `${acc.pitch}+${ev.pitch}` : ev.pitch;
                 }
-                return ev;
-            });
+                acc.duration = acc.duration !== undefined ? acc.duration : ev.duration;
+                acc.velocity = acc.velocity !== undefined ? acc.velocity : ev.velocity;
+                acc.wait = acc.wait !== undefined ? acc.wait : ev.wait;
+                return acc;
+            }, {} as INote);
+            const parsedEvent = {
+                duration: parsedArgs.duration !== undefined ? parsedArgs.duration : event.duration,
+                pitch: parsedArgs.pitch !== undefined ? parsedArgs.pitch.split("+") : event.pitch.split("+"),
+                velocity: parsedArgs.velocity !== undefined ? parsedArgs.velocity : event.velocity,
+                wait: parsedArgs.wait !== undefined ? parsedArgs.wait : event.wait,
+            };
+            Midi[track] = removeIndex(Midi[track], index);
+            Midi[track].addEvent(new NoteEvent(parsedEvent));
+            Midi[track] = addIndex(Midi[track]);
             if (parsedArgs.before) {
-                Midi[track] = swapIndex(Midi[track], index, parsedArgs.before - 1);
+                const lastIndex = Midi[track].events[Midi[track].events.length-1].index;
+                Midi[track] = swapIndex(Midi[track], lastIndex, parsedArgs.before - 1);
             }
             msg.reply(`successfully edited note number ${parsedArgs.note} on track number ${parsedArgs.track}.`)
         }

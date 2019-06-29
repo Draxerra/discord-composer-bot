@@ -49,6 +49,12 @@ export const add = {
             const { before, duration, velocity, wait } = parsedArgs;
             if (!Midi[track]) {
                 msg.reply("this track does not exist!");
+                return;
+            }
+            const last = Midi[track].events[Midi[track].events.length-1];
+            if (before < 1 || before - 1 > (last ? last.index : -1)) {
+                msg.reply("cannot move note before this note as it does not exist!");
+                return;
             }
             Midi[track].addEvent(new NoteEvent({ pitch, duration: "T" + duration, velocity, wait: "T" + wait }));
             Midi[track] = addIndex(Midi[track]);

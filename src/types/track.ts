@@ -8,9 +8,9 @@ export default interface ITrack {
     addEvent(note: INote): void;
 }
 export interface INote {
-    pitch: string | string[];
-    duration: string | string[];
-    wait?: string | string[];
+    pitch: string;
+    duration: string;
+    wait?: string;
     sequential?: boolean;
     velocity?: number;
     repeat?: number;

@@ -62,7 +62,7 @@ export const play = {
                     midi.events = midi.events.filter(ev => ev.type !== "end-track");
                 });
             });
-        } catch (err) {
+        } catch(err) {
             console.error(err);
             msg.reply("oh no! something went wrong :(");
         }

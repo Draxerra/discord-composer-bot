@@ -28,6 +28,11 @@ export const remove = {
             const track = parsedArgs.track - 1;
             if (!Midi[track]) {
                 msg.reply("invalid track number!");
+                return;
+            }
+            if (!Midi[track].events.some(ev => ev.index === index)) {
+                msg.reply("note number does not exist!");
+                return;
             }
             const notesToRemove = Midi[track].events.filter(ev => ev.index === index && ev.type === "note-on")
                 .map(ev => ev.pitch).join("+");

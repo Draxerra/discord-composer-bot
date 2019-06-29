@@ -19,8 +19,13 @@ export const removeTrack = {
         if (parsedArgs instanceof Error) {
             msg.reply(parsedArgs);
         } else {
-            Midi.splice(parsedArgs.track, 1);
-            msg.reply(`Removed track no. ${args[0]}!`);
+            const track = parsedArgs.track - 1;
+            if (!Midi[track]) {
+                msg.reply("invalid track number!");
+                return;
+            }
+            Midi.splice(track, 1);
+            msg.reply(`Removed track no. ${parsedArgs.track}!`);
         }
     },
 } as ICommand;

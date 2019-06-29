@@ -15,8 +15,7 @@
     "discord.js": "^11.5.1",
     "lodash": "^4.17.11",
     "midi-writer-js": "^1.7.1",
-    "node-opus": "^0.3.2",
-    "tonal-midi": "^0.69.7"
+    "node-opus": "^0.3.2"
   },
   "devDependencies": {
     "@types/copy-webpack-plugin": "^5.0.0",

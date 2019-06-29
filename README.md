@@ -8,7 +8,7 @@ The application requires [Node.js](https://nodejs.org/en/download/), [ffmpeg](ht
 
 Fill out the config in `config.sample.json` and rename it to `config.json`. The settings will be determined by this file.
 
-Place all your soundfonts in the `src/soundfonts` directory.
+Place all your soundfonts in the `src/soundfonts` directory. Some basic soundfonts can be found [here](http://freepats.zenvoid.org/). Currently only .sf2 files are supported.
 
 ### Dev Server
 
