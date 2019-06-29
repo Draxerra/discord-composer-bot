@@ -36,6 +36,10 @@ To start the prod server:
 $ npm start
 ```
 
+### Live Server
+
+To view a live version of the bot on a server, click [here](https://discord.gg/jtrtv75).
+
 ### Commands
 
 #### add-track
