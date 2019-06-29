@@ -38,7 +38,7 @@ $ npm start
 
 ### Live Server
 
-To view a live version of the bot on a server, click [here](https://discord.gg/jtrtv75).
+To view a live version of the bot on a server, click [here](https://discord.gg/jtrtv75). The prefix for all the commands is `c>`.
 
 ### Commands
 
