@@ -36,10 +36,6 @@ To start the prod server:
 $ npm start
 ```
 
-### Live Server
-
-There is a live server of the app running which you can view [here](https://discord.gg/jtrtv75).
-
 ### Commands
 
 #### add-track
