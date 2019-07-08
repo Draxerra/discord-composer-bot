@@ -1,31 +1,27 @@
-import ICommand from "types/command";
+import { Arg, Command, ParseArgs } from "utils/commands";
 import Midi from "data/midi";
-import { parseArgs } from "data/args";
 
-interface IRemoveTrackArgs {
-    track: number;
-}
-
-export const removeTrack = {
+export const removeTrack = Command({
     name: "remove-track",
     description: "Removes the specified track (e.g. remove-track track=2)",
-    args: [{
-        name: "track",
-        type: Number,
-        required: true
-    }],
+    args: {
+        track: Arg<number>({
+            type: Number,
+            required: true
+        })
+    },
     run: (msg, client, args) => {
-        const parsedArgs = parseArgs<IRemoveTrackArgs>(removeTrack.args || [], args);
-        if (parsedArgs instanceof Error) {
-            msg.reply(parsedArgs);
-        } else {
-            const track = parsedArgs.track - 1;
-            if (!Midi[track]) {
-                msg.reply("invalid track number!");
+        ParseArgs(removeTrack.args, args).then(({ track }) => {
+            const trackIndex = track - 1;
+
+            // Throw an error if track does not exist.
+            if (!Midi[trackIndex]) {
+                msg.reply("this track does not exist!");
                 return;
             }
-            Midi.splice(track, 1);
-            msg.reply(`Removed track no. ${parsedArgs.track}!`);
-        }
-    },
-} as ICommand;
+
+            Midi.splice(trackIndex, 1);
+            msg.reply(`Successfully removed track number ${track}!`);
+        }).catch(err => msg.reply(err.message));
+    }
+});

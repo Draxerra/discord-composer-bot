@@ -1,43 +1,38 @@
-import ICommand from "types/command";
-import Midi, { removeIndex } from "data/midi";
-import { parseArgs } from "data/args";
+import { Arg, Command, ParseArgs } from "utils/commands";
+import Midi from "data/midi";
 
-interface IRemoveArgs {
-    track: number;
-    note: number;
-}
-
-export const remove = {
+export const remove = Command({
     name: "remove",
     description: "Removes a note (e.g. remove note=3 track=2)",
-    args: [{
-        name: "note",
-        type: Number,
-        required: true
-    }, {
-        name: "track",
-        type: Number,
-        required: true
-    }],
-    run: (msg, client, args) => {
-        const parsedArgs = parseArgs<IRemoveArgs>(remove.args || [], args);
-        if (parsedArgs instanceof Error) {
-            msg.reply(parsedArgs);
-        } else {
-            const index = parsedArgs.note - 1;
-            const track = parsedArgs.track - 1;
-            if (!Midi[track]) {
-                msg.reply("invalid track number!");
-                return;
-            }
-            if (!Midi[track].events.some(ev => ev.index === index)) {
-                msg.reply("note number does not exist!");
-                return;
-            }
-            const notesToRemove = Midi[track].events.filter(ev => ev.index === index && ev.type === "note-on")
-                .map(ev => ev.pitch).join("+");
-            Midi[track] = removeIndex(Midi[track], index);
-            msg.reply(`successfully removed ${parsedArgs.note}. ${notesToRemove} from track ${parsedArgs.track}!`);
-        }
+    args: {
+        track: Arg<number>({
+            type: Number,
+            required: true
+        }),
+        note: Arg<number>({
+            type: Number,
+            required: true
+        })
     },
-} as ICommand;
+    run: (msg, client, args) => {
+        ParseArgs(remove.args, args).then(({ track, note }) => {
+
+            const selectedTrack = Midi[track - 1];
+            // Throw an error if track does not exist.
+            if (!selectedTrack) {
+                msg.reply("this track does not exist!");
+                return;
+            }
+
+            const noteIndex = note - 1;
+            // Throw an error if note does not exist.
+            if (!selectedTrack[noteIndex]) {
+                msg.reply("this note does not exist!");
+                return;
+            }
+
+            selectedTrack.splice(noteIndex, 1);
+            msg.reply(`Successfully removed note number ${note} from track number ${track}!`);
+        }).catch(err => msg.reply(err.message));
+    }
+});

@@ -1,40 +1,48 @@
-import ICommand from "types/command";
-import Midi from "data/midi";
-import { INoteEvent } from "types/track";
+import { Command } from "utils/commands";
+import Midi, { NotesMap } from "data/midi";
+import { Notes } from "midi-writer-js";
 
-export const list = {
+const capitalize = (str: string) => {
+    return str.replace(/^.|(?<=\s)./g, char => char.toUpperCase());
+}
+
+const getNoteNames = (notes: Notes[]) => {
+    return notes.map(dur => {
+        const note = Object.entries(NotesMap).find(([ key, val ]) => val === dur);
+        return note ? capitalize(note[0].replace("-", " ")) : "";
+    });
+}
+
+export const list = Command({
     name: "list",
     description: "Lists the current tracks",
-    run: (msg) => {
-        if (Midi.length) {
-            Midi.map((track, i) => {
-                const notes = track.events.reduce((acc: INoteEvent[], note) => {
-                    if (!acc[note.index]) {
-                        acc[note.index] = {...note};
-                    } else if (acc[note.index].type === note.type) {
-                        acc[note.index].pitch = `${acc[note.index].pitch}+${note.pitch}`;
-                    }
-                    if(note.type === "note-off" && acc[note.index].duration === undefined) {
-                        acc[note.index].duration = note.duration;
-                    } else if (note.type === "note-on" && acc[note.index].wait === null) {
-                        acc[note.index].wait = note.wait;
-                    }
-                    return acc;
-                }, []);
-                return {
-                    embed: {
-                        color: 3447003,
-                        title: `Track ${i+1}`,
-                        description: !notes.length ? "No notes added" : undefined,
-                        fields: notes.map((note, j) => ({
-                            name: `Note ${j+1}`,
-                            value: `${note.pitch} (Duration: ${(note.duration || "T0").slice(1)}, Wait: ${(note.wait || "T0").slice(1)}, Velocity: ${note.velocity})`
-                        }))
-                    }
-                };
-            }).forEach(embed => msg.channel.send(embed));
-        } else {
-            msg.reply("there are no notes added!");
+    args: {},
+    run: msg => {
+        // Throw an error if there are no tracks.
+        if (!Midi.length) {
+            msg.reply("there are no tracks added!");
+            return;
         }
-    },
-} as ICommand;
+
+        Midi.map((track, i) => {
+            return {
+                embed: {
+                    color: 3447003,
+                    title: `Track ${i + 1}`,
+                    description: !track.length ? "No notes added" : undefined,
+                    fields: track.map((note, j) => {
+                        const duration = getNoteNames(note.duration);
+                        const wait = getNoteNames(note.wait);
+                        return {
+                            name: `Note ${j + 1}`,
+                            value: `${note.pitch.join("+")} ` +
+                            `(Duration: ${duration.join("+")}` +
+                            `${wait.length ? `, Wait: ${wait.join("+")}` : ""}, ` +
+                            `Velocity: ${note.velocity})`
+                        };
+                    })
+                }
+            }
+        }).forEach(embed => msg.channel.send(embed));
+    }
+});

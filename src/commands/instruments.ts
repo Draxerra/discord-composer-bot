@@ -1,9 +1,10 @@
-import ICommand from "types/command";
+import { Command } from "utils/commands";
 import Soundfonts from "soundfonts";
 
-export const instruments = {
+export const instruments = Command({
     name: "instruments",
     description: "Lists all the available instruments",
+    args: {},
     run: async(msg) => {
         try {
             const soundfonts = await Soundfonts;
@@ -12,5 +13,5 @@ export const instruments = {
             console.error(err);
             msg.reply("oh no! something went wrong :(");
         }
-    },
-} as ICommand;
+    }
+});

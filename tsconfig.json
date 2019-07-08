@@ -5,6 +5,6 @@
         "outDir": "./dist",
         "resolveJsonModule": true,
         "baseUrl": "./src",
-        "strictNullChecks": true
+        "strict": true
     }
 }

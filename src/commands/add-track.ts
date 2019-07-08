@@ -1,12 +1,12 @@
-import { Track } from "midi-writer-js";
-import ICommand from "types/command";
+import { Command } from "utils/commands";
 import Midi from "data/midi";
 
-export const addTrack = {
+export const addTrack = Command({
     name: "add-track",
     description: "Adds a new track",
+    args: {},
     run: (msg) => {
-        Midi.push(new Track());
+        Midi.push([]);
         msg.reply(`Added track no. ${Midi.length}!`);
     },
-} as ICommand;
+});

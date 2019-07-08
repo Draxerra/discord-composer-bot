@@ -1,7 +1,6 @@
 import { CleanWebpackPlugin } from "clean-webpack-plugin";
 import * as CopyWebpackPlugin from "copy-webpack-plugin";
 import { resolve } from "path";
-import * as ProgressBarPlugin from "progress-bar-webpack-plugin";
 import { TsconfigPathsPlugin } from "tsconfig-paths-webpack-plugin";
 import { Configuration } from "webpack";
 import * as nodeExternals from "webpack-node-externals";
@@ -33,7 +32,6 @@ module.exports = {
             from: "src/soundfonts",
             ignore: ['*.js', '*.ts']
         }]),
-        new ProgressBarPlugin(),
         new CleanWebpackPlugin()
     ],
     externals: [nodeExternals()],

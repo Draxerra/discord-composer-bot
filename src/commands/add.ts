@@ -1,68 +1,81 @@
-import ICommand from "types/command";
-import Midi, { addIndex, swapIndex } from "data/midi";
-import { NoteEvent } from "midi-writer-js";
-import { parseArgs } from "data/args";
+import { Arg, Command, ParseArgs } from "utils/commands";
+import Midi, { TDuration, Notes, NotesMap } from "data/midi";
+import { note } from "@tonaljs/tonal";
 
-interface IAddArgs {
-    pitch: string;
-    duration: number;
-    track: number;
-    velocity: number;
-    wait: number;
-    before?: number;
-}
+const precedesVowel = (val: string) => ["a", "e", "i", "o", "u"].includes(val.charAt(0));
 
-export const add = {
+export const add = Command({
     name: "add",
     description: "Adds a note (e.g. add pitch=d4 duration=128 track=2 velocity=40 wait=128 before=2)",
-    args: [{
-        name: "pitch",
-        type: String,
-        required: true
-    }, {
-        name: "duration",
-        type: Number,
-        default: 128
-    }, {
-        name: "track",
-        type: Number,
-        default: 1
-    }, {
-        name: "wait",
-        type: Number,
-        default: 0
-    }, {
-        name: "velocity",
-        type: Number,
-        default: 80
-    }, {
-        name: "before",
-        type: Number
-    }],
-    run: (msg, client, args) => {
-        const parsedArgs = parseArgs<IAddArgs>(add.args || [], args);
-        if (parsedArgs instanceof Error) {
-            msg.reply(parsedArgs.message);
-        } else {
-            const pitch = parsedArgs.pitch.split("+");
-            const track = parsedArgs.track - 1;
-            const { before, duration, velocity, wait } = parsedArgs;
-            if (!Midi[track]) {
+    args: {
+        pitch: Arg<string[]>({
+            type: String,
+            required: true,
+            splitChar: "+",
+            oneOf: val => val.every(pitch => note(pitch).name)
+        }),
+        duration: Arg<TDuration[]>({
+            type: String,
+            default: ["quarter"],
+            splitChar: "+",
+            oneOf: val => val.every(duration => Notes.includes(duration))
+        }),
+        track: Arg<number>({
+            type: Number,
+            default: 1
+        }),
+        wait: Arg<TDuration[]>({
+            type: String,
+            default: ["none"],
+            splitChar: "+",
+            oneOf: val => val.every(wait => Notes.includes(wait)),
+        }),
+        velocity: Arg<number>({
+            type: Number,
+            default: 80
+        }),
+        before: Arg<number | undefined>({
+            type: Number
+        })
+    },
+    run: async(msg, client, args) => {
+        ParseArgs(add.args, args).then(({ pitch, duration, track, wait, velocity, before }) => {
+            const selectedTrack = Midi[track - 1];
+            const mappedDuration = duration.map(item => NotesMap[item]);
+            const mappedWait = wait.filter(item => item !== "none").map(item => NotesMap[item]);
+
+            // Return an error message if track index does not exist.
+            if (!selectedTrack) {
                 msg.reply("this track does not exist!");
                 return;
             }
-            const last = Midi[track].events[Midi[track].events.length-1];
-            if (before !== undefined && (before < 1 || before - 1 > (last ? last.index : -1))) {
-                msg.reply("cannot move note before this note as it does not exist!");
-                return;
+
+            // Add the note to the selectedTrack array.
+            const note = { pitch, duration: mappedDuration, wait: mappedWait, velocity };
+
+            // Insertion index specified.
+            if (before !== undefined) {
+                
+                // Only add it to the array if the insertion index is between 0 and the last array element.
+                if (before - 1 < 0 || before - 1 >= selectedTrack.length) {
+                    msg.reply("cannot insert note before specified note as it does not exist!");
+                    return;
+                } else {
+                    selectedTrack.splice(before - 1, 0, note);
+                }
+
+            // No insertion index specified.
+            // Push it to the end of the array.
+            } else {
+                selectedTrack.push(note);
             }
-            Midi[track].addEvent(new NoteEvent({ pitch, duration: "T" + duration, velocity, wait: "T" + wait }));
-            Midi[track] = addIndex(Midi[track]);
-            if (before) {
-                const lastIndex = Midi[track].events[Midi[track].events.length-1].index;
-                Midi[track] = swapIndex(Midi[track], lastIndex, before - 1);
-            }
-            msg.reply(`successfully added ${parsedArgs.pitch}, with ${duration} ticks, waiting for ${wait} ticks and ${velocity} velocity on track number ${parsedArgs.track}.`);
-        }
-    },
-} as ICommand;
+
+            // Feedback to the user what was added.
+            msg.reply(`Successfully added ${precedesVowel(duration.join()) ? "an" : "a"} ${duration.join("+")}` +
+                ` ${pitch.join("+")} note, with` +
+                `${mappedWait.length ? ` a ${wait.join("+")} rest and` : ""}` +
+                ` ${velocity} velocity,` +
+                ` to track ${track}!`);
+        }).catch(err => msg.reply(err.message));
+    }
+});
