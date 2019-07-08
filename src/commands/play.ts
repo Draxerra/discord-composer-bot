@@ -55,10 +55,10 @@ export const play = Command({
                 const connection = await msg.member.voiceChannel.join();
         
                 // Spawn a timidity instance to play the MIDI buffer with the specified soundfont.
-                const timidity = spawn("timidity", ["-x", `soundfont ./src/soundfonts/${soundfont.filename}`, "-s", "96000", "-", "-Ow", "-o", "-"]);
+                const timidity = spawn("timidity", ["-x", `soundfont ./src/soundfonts/${soundfont.filename}`, "-s", "65000", "-", "-Ow", "-o", "-"]);
                 timidity.stdin.write(buffer);
                 msg.reply(`here's your track so far using the ${soundfont.name} soundfont...`);
-                const dispatcher = connection.playStream(timidity.stdout, { passes: 4, volume: 1, bitrate: 96000 });
+                const dispatcher = connection.playStream(timidity.stdout, { passes: 4, volume: 1, bitrate: 65000 });
         
                 // Leave the voice channel once done playing.
                 dispatcher.on("end", () => msg.member.voiceChannel.leave());
@@ -70,6 +70,5 @@ export const play = Command({
         }).catch(err => {
             msg.reply(err.message);
         });
-
     }
 });
