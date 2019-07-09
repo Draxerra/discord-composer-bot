@@ -4,7 +4,7 @@ import { note } from "@tonaljs/tonal";
 
 export const edit = Command({
     name: "edit",
-    description: "Edits a note (e.g. edit note=1 track=2 pitch=e4 duration=256 velocity=30 wait=128 before=1)",
+    description: "Edits a note (e.g. edit note=1 track=2 pitch=e4 duration=256 velocity=30 wait=128 move=1)",
     args: {
         note: Arg<number>({
             type: Number,
@@ -32,12 +32,12 @@ export const edit = Command({
         velocity: Arg<number | undefined>({
             type: Number
         }),
-        before: Arg<number | undefined>({
+        move: Arg<number | undefined>({
             type: Number
         })
     },
     run: (msg, client, args) => {
-        ParseArgs(edit.args, args).then(({ note, track, before, ...event }) => {
+        ParseArgs(edit.args, args).then(({ note, track, move, ...event }) => {
             const selectedTrack = Midi[track - 1];
 
             // Return an error message if track index does not exist.
@@ -60,6 +60,18 @@ export const edit = Command({
             selectedNote.duration = duration !== undefined ? duration.map(item => NotesMap[item]) : selectedNote.duration;
             selectedNote.wait = wait !== undefined ? wait.map(item => NotesMap[item]) : selectedNote.wait;
             selectedNote.velocity = velocity !== undefined ? velocity : selectedNote.velocity;
+
+            if (move !== undefined) {
+
+                // Only move it if the insertion index is between 0 and the last array element.
+                if (move - 1 < 0 || move - 1 >= selectedTrack.length) {
+                    msg.reply("cannot move note here as it does not exist!");
+                    return;
+                }
+
+                // Move the element.
+                selectedTrack.splice(move - 1, 0, selectedTrack.splice(note - 1, 1)[0]);
+            }
 
             // Feedback to the user what was edited.
             msg.reply(`Successfully edited note ${note} in track ${track}!`);

@@ -10,7 +10,6 @@ export async function ParseArgs<T>(argTypes: T, argValues: string[]) {
         // Parse all the values according to the specified type.
         const parsedValue = Array.isArray(splitValue) ? splitValue.map(val => parse(val, argType.type)) : parse(argValue, argType.type);
         // Use the default value if value is blank.
-        // Display default value as an array if splitChar was passed in.
         const defValue = Array.isArray(argType.default) ? argType.default : nullCoalesce(argType.default, "");
         const value = containsBlank(parsedValue) ? defValue : parsedValue;
 
