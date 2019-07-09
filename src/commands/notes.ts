@@ -3,7 +3,7 @@ import { Notes } from "data/midi";
 
 export const notes = Command({
     name: "notes",
-    description: "Shows all the notes",
+    description: "Lists all the available notes",
     args: {},
     run: msg => {
         msg.channel.send({embed: {

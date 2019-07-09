@@ -4,7 +4,7 @@ import { note } from "@tonaljs/tonal";
 
 export const edit = Command({
     name: "edit",
-    description: "Edits a note (e.g. edit note=1 track=2 pitch=e4 duration=256 velocity=30 wait=128 move=1)",
+    description: "Edits a note (e.g. edit note=1 track=2 pitch=c4 duration=whole velocity=30 wait=dotted-quarter move=1)",
     args: {
         note: Arg<number>({
             type: Number,

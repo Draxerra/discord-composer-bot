@@ -6,7 +6,7 @@ const precedesVowel = (val: string) => ["a", "e", "i", "o", "u"].includes(val.ch
 
 export const add = Command({
     name: "add",
-    description: "Adds a note (e.g. add pitch=d4 duration=128 track=2 velocity=40 wait=128 before=2)",
+    description: "Adds a note (e.g. add pitch=c4+e4+g4 duration=quarter track=2 velocity=40 wait=whole+whole before=2)",
     args: {
         pitch: Arg<string[]>({
             type: String,
