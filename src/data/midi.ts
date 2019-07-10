@@ -16,6 +16,7 @@ export enum NotesMap {
     "thirty-second" = "32",
     "sixty-fourth" = "64"
 }
+
 export const Notes = Object.keys(NotesMap);
 export type TDuration = keyof typeof NotesMap;
 

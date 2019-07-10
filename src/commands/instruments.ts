@@ -1,5 +1,5 @@
 import { Command } from "utils/commands";
-import Soundfonts from "soundfonts";
+import { soundfont } from "config.json";
 
 export const instruments = Command({
     name: "instruments",
@@ -7,8 +7,10 @@ export const instruments = Command({
     args: {},
     run: async(msg) => {
         try {
-            const soundfonts = await Soundfonts;
-            msg.reply(`Available instruments are: ${soundfonts.map(soundfont => soundfont.name).join(", ")}`);
+            msg.channel.send({embed: {
+                title: "Instruments",
+                description: `The available instruments are: ${soundfont.instruments.map(instrument => instrument.name).join(", ")}`
+            }});
         } catch (err) {
             console.error(err);
             msg.reply("oh no! something went wrong :(");

@@ -15,8 +15,13 @@ declare module "midi-writer-js" {
     class NoteEvent {
         public constructor(note: INoteEvent);
     }
+
+    class ProgramChangeEvent {
+        public constructor(name: any);
+    }
     class Track {
-        addEvent(events: NoteEvent[]): void;
+        addEvent(events: NoteEvent[] | ProgramChangeEvent): void;
+        addInstrumentName(name: string): void;
     }
     class Writer {
         public constructor(tracks: Track[]);

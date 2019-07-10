@@ -5,6 +5,9 @@
         "outDir": "./dist",
         "resolveJsonModule": true,
         "baseUrl": "./src",
+        "paths": {
+            "config.json": ["../config.json"]
+        },
         "strict": true
     }
 }
