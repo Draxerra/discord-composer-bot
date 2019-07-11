@@ -4,11 +4,11 @@ The Discord Composer Bot allows users to create their own music through messages
 
 ## Prerequisites
 
-The application requires [Node.js](https://nodejs.org/en/download/), [ffmpeg](https://ffmpeg.org/download.html) and [Timidity++](https://sourceforge.net/projects/timidity/). You'll need to ensure all of these are available on your path environment variable.
+The application requires [Node.js](https://nodejs.org/en/download/), [ffmpeg](https://ffmpeg.org/download.html), [Timidity++](https://sourceforge.net/projects/timidity/) and [MuseScore](https://musescore.org/en/download) You'll need to ensure all of these are available on your path environment variable.
 
 Fill out the config in `config.sample.json` and rename it to `config.json`. The settings will be determined by this file.
 
-Place all your soundfonts in the `src/soundfonts` directory. Some basic soundfonts can be found [here](http://freepats.zenvoid.org/). Currently only .sf2 files are supported.
+Place your general midi soundfont in the `src/soundfonts` directory.
 
 Once cloned, run the following command in the root directory:
 ```

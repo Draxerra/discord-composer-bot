@@ -47,20 +47,22 @@ export const play = Command({
                     t.addEvent(Midi[track - 1].map(note => new NoteEvent(note)));
                     return t;
                 }));
-                const buffer = Buffer.from(midi.buildFile(), "binary");
+                const buffer = Buffer.from(midi.buildFile());
         
                 // Join the voice channel with the user.
+                await msg.member.voiceChannel.leave();
                 const connection = await msg.member.voiceChannel.join();
         
                 // Spawn a timidity instance to play the MIDI buffer with the specified soundfont.
-                // `-x soundfont ./src/soundfonts/${soundfont.filename}`
                 const timidity = spawn("timidity", [`-x soundfont ./src/soundfonts/${soundfont.name}`, "-s", "65000", "-", "-Ow", "-o", "-"]);
                 timidity.stdin.write(buffer);
-                msg.reply(`here's your track so far using the ${instrument} instrument...`);
                 const dispatcher = connection.playStream(timidity.stdout, { passes: 4, volume: 1, bitrate: 96000 });
         
                 // Leave the voice channel once done playing.
+                dispatcher.on("start", () => msg.reply(`here's your track so far using the ${instrument} instrument...`));
                 dispatcher.on("end", () => msg.member.voiceChannel.leave());
+                dispatcher.on("error", (err) => { throw err; });
+                
             } catch (err) {
                 console.error(err);
                 msg.member.voiceChannel.leave();
