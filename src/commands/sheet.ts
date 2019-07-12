@@ -3,7 +3,7 @@ import Midi from "data/midi";
 import { Arg, Command, ParseArgs } from "utils/commands";
 import { Attachment } from "discord.js";
 import { exec } from "child_process";
-import { readFile, writeFile, unlink } from "fs";
+import { readFile, writeFile, unlink } from "fs"; 
 import { promisify } from "util";
 
 export const sheet = Command({
@@ -36,7 +36,7 @@ export const sheet = Command({
                     t.addEvent(Midi[track - 1].map(note => new NoteEvent(note)));
                     return t;
                 }));
-                msg.reply("Generating your sheet music...");
+                msg.reply("generating sheet music...");
 
                 // Save binary as a temporary midi file.
                 const buffer = Buffer.from(midi.buildFile());

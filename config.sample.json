@@ -1,10 +1,4 @@
 {
     "prefix": "",
-    "token": "",
-    "soundfont": {
-        "name": "",
-        "instruments": [
-            { "number": 0, "name": "" },
-        ]
-    }
+    "token": ""
 }

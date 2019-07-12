@@ -2,15 +2,14 @@ import { spawn } from "child_process";
 import { NoteEvent, ProgramChangeEvent, Track, Writer } from "midi-writer-js";
 import Midi from "data/midi";
 import { Arg, Command, ParseArgs } from "utils/commands";
-import { soundfont } from "config.json";
+import { Instruments } from "soundfonts";
 
 export const play = Command({
     name: "play",
     description: "Plays the specified tracks (e.g. play instrument=harmonica tracks=1+2)",
     args: {
         instrument: Arg<string>({
-            type: String,
-            default: soundfont.instruments[0].name
+            type: String
         }),
         tracks: Arg<number[]>({
             type: Number,
@@ -34,7 +33,9 @@ export const play = Command({
                     return;
                 }
 
-                const midiInstrument = soundfont.instruments.find(midiInstrument => midiInstrument.name === instrument);
+                const instruments = await Instruments;
+                instrument = instrument ? instrument : (instruments[0] ? instruments[0].name : "");
+                const midiInstrument = instruments.find(midiInstrument => midiInstrument.name === instrument);
                 if (!midiInstrument) {
                     msg.reply("instrument does not exist!");
                     return;
@@ -43,8 +44,8 @@ export const play = Command({
                 // Comnvert the multi-dimensional array of notes to midi binary.
                 const midi = new Writer(tracks.map(track => {
                     const t = new Track();
-                    t.addEvent(new ProgramChangeEvent({ instrument: midiInstrument.number }));
-                    t.addEvent(Midi[track - 1].map(note => new NoteEvent(note)));
+                    t.addEvent(new ProgramChangeEvent({ instrument: midiInstrument.instrument }));
+                    t.addEvent(Midi[track - 1].map(note => new NoteEvent({...note, channel: midiInstrument.channel})));
                     return t;
                 }));
                 const buffer = Buffer.from(midi.buildFile());
@@ -54,7 +55,7 @@ export const play = Command({
                 const connection = await msg.member.voiceChannel.join();
         
                 // Spawn a timidity instance to play the MIDI buffer with the specified soundfont.
-                const timidity = spawn("timidity", [`-x soundfont ./src/soundfonts/${soundfont.name}`, "-s", "65000", "-", "-Ow", "-o", "-"]);
+                const timidity = spawn("timidity", [`-x soundfont ./src/soundfonts/${midiInstrument.soundfont}`, "-s", "65000", "-", "-Ow", "-o", "-"]);
                 timidity.stdin.write(buffer);
                 const dispatcher = connection.playStream(timidity.stdout, { passes: 4, volume: 1, bitrate: 96000 });
         

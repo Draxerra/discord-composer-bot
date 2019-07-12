@@ -8,6 +8,7 @@
         "paths": {
             "config.json": ["../config.json"]
         },
+        "typeRoots": ["./node_modules/@types", "./typings"],
         "strict": true
     }
 }
