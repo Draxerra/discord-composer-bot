@@ -1,6 +1,7 @@
 import { Arg, Command, ParseArgs } from "utils/commands";
 import Midi, { Notes, NotesMap, TDuration } from "data/midi";
 import { note } from "@tonaljs/tonal";
+import { Instruments } from "soundfonts";
 
 export const edit = Command({
     name: "edit",
@@ -32,6 +33,13 @@ export const edit = Command({
         velocity: Arg<number | undefined>({
             type: Number
         }),
+        instrument: Arg<string>({
+            type: String,
+            oneOf: async(val) => {
+                const instruments = await Instruments;
+                return instruments.find(instrument => instrument.name === val) ? true : false
+            },
+        }),
         move: Arg<number | undefined>({
             type: Number
         })
@@ -55,11 +63,12 @@ export const edit = Command({
             }
 
             // Alter the values.
-            const { pitch, duration, wait, velocity } = event;
+            const { pitch, duration, wait, velocity, instrument } = event;
             selectedNote.pitch = pitch !== undefined ? pitch : selectedNote.pitch;
             selectedNote.duration = duration !== undefined ? duration.map(item => NotesMap[item]) : selectedNote.duration;
             selectedNote.wait = wait !== undefined ? wait.map(item => NotesMap[item]) : selectedNote.wait;
             selectedNote.velocity = velocity !== undefined ? velocity : selectedNote.velocity;
+            selectedNote.instrument = instrument !== undefined ? instrument : selectedNote.instrument;
 
             if (move !== undefined) {
 

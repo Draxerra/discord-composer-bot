@@ -18,9 +18,9 @@ export interface ICommandArgs<T = TArgValue> {
 export interface ICommandArg<T> {
     type: StringConstructor | NumberConstructor;
     required?: boolean;
-    default?: T;
+    default?: T | (() => T | Promise<T>);
     splitChar?: string;
-    oneOf?: ((val: NonNullable<T>) => boolean);
+    oneOf?: ((val: NonNullable<T>) => boolean | Promise<boolean>);
 }
 
 export function Command<T>(command: ICommand<T>) {

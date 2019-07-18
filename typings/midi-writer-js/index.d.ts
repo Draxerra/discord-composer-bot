@@ -21,6 +21,10 @@ declare module "midi-writer-js" {
     class ProgramChangeEvent {
         public constructor(name: any);
     }
+
+    class ControllerChangeEvent {
+        public constructor(name: any);
+    }
     class Track {
         addEvent(events: NoteEvent[] | ProgramChangeEvent, mapFunction?: (event: NoteEvent, index: number) => NoteEvent): void;
         setTempo(tempo: number): void;
@@ -39,5 +43,12 @@ declare module "midi-writer-js" {
         base64(): string;
         dataUri(): string;
         stdout(): Stream;
+    }
+
+    const Constants: {
+        CONTROLLER_CHANGE_STATUS: number;
+    }
+    const Utils: {
+        numberToVariableLength(num: number): number[];
     }
 }

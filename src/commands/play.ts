@@ -1,6 +1,6 @@
 import { spawn } from "child_process";
 import { NoteEvent, ProgramChangeEvent, Track, Writer } from "midi-writer-js";
-import Midi from "data/midi";
+import Midi, { ControllerChangeEvent } from "data/midi";
 import { Arg, Command, ParseArgs } from "utils/commands";
 import { Instruments } from "soundfonts";
 
@@ -8,8 +8,12 @@ export const play = Command({
     name: "play",
     description: "Plays the specified tracks (e.g. play instrument=harmonica tracks=1+2)",
     args: {
-        instrument: Arg<string>({
-            type: String
+        instrument: Arg<string | undefined>({
+            type: String,
+            oneOf: async(val) => {
+                const instruments = await Instruments;
+                return instruments.find(instrument => instrument.name === val) ? true : false
+            },
         }),
         tracks: Arg<number[]>({
             type: Number,
@@ -34,9 +38,8 @@ export const play = Command({
                 }
 
                 const instruments = await Instruments;
-                instrument = instrument ? instrument : (instruments[0] ? instruments[0].name : "");
                 const midiInstrument = instruments.find(midiInstrument => midiInstrument.name === instrument);
-                if (!midiInstrument) {
+                if (instrument && !midiInstrument) {
                     msg.reply("instrument does not exist!");
                     return;
                 }
@@ -44,8 +47,16 @@ export const play = Command({
                 // Comnvert the multi-dimensional array of notes to midi binary.
                 const midi = new Writer(tracks.map(track => {
                     const t = new Track();
-                    t.addEvent(new ProgramChangeEvent({ instrument: midiInstrument.instrument }));
-                    t.addEvent(Midi[track - 1].map(note => new NoteEvent({...note, channel: midiInstrument.channel})));
+                    const events = Midi[track - 1].map(note => {
+                        const noteInstrument = midiInstrument ? midiInstrument : instruments.find(midiInstrument => 
+                            midiInstrument.name === note.instrument);
+                        return [
+                            new ControllerChangeEvent({ controllerNumber: 0, controllerValue: noteInstrument ? noteInstrument.bank : 0 }),
+                            new ProgramChangeEvent({ instrument: noteInstrument ? noteInstrument.instrument : 1 }),
+                            new NoteEvent({...note, channel: 1})
+                        ];
+                    }).reduce((a, b) => a.concat(b));
+                    t.addEvent(events);
                     return t;
                 }));
                 const buffer = Buffer.from(midi.buildFile());
@@ -55,13 +66,17 @@ export const play = Command({
                 const connection = await msg.member.voiceChannel.join();
         
                 // Spawn a timidity instance to play the MIDI buffer with the specified soundfont.
-                const timidity = spawn("timidity", [`-x soundfont ./src/soundfonts/${midiInstrument.soundfont}`, "-s", "65000", "-", "-Ow", "-o", "-"]);
+                const timidity = spawn("timidity", ["-c", "./src/soundfonts/timidity.cfg", "-", "-Ow", "-o", "-"]);
                 timidity.stdin.write(buffer);
+                timidity.stdin.end();
                 const dispatcher = connection.playStream(timidity.stdout, { passes: 4, volume: 1, bitrate: 96000 });
         
-                // Leave the voice channel once done playing.
-                dispatcher.on("start", () => msg.reply(`here's your track so far using the ${instrument} instrument...`));
-                dispatcher.on("end", () => msg.member.voiceChannel.leave());
+                // Leave the voice channel and kill the process once done playing.
+                dispatcher.on("start", () => msg.reply(`here's your track so far${instrument ? ` using the ${instrument} instrument` : ""}...`));
+                dispatcher.on("end", () => {
+                    msg.member.voiceChannel.leave();
+                    timidity.kill();
+                });
                 dispatcher.on("error", (err) => { throw err; });
                 
             } catch (err) {

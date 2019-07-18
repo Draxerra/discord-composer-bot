@@ -1,7 +1,7 @@
 import { GetGeneric, TArgs, TArgValue } from "utils/commands";
 
 export async function ParseArgs<T>(argTypes: T, argValues: string[]) {
-    return Object.entries(argTypes).reduce((acc, [name, argType]: [string, TArgs]) => {
+    const args = await Promise.all(Object.entries(argTypes).map(async([name, argType]: [string, TArgs]) => {
 
         // Find the argument value passed in following the "=".
         const argValue = getValueAfter(argValues.find(val => val.includes(name)) || "", "=");
@@ -10,7 +10,8 @@ export async function ParseArgs<T>(argTypes: T, argValues: string[]) {
         // Parse all the values according to the specified type.
         const parsedValue = Array.isArray(splitValue) ? splitValue.map(val => parse(val, argType.type)) : parse(argValue, argType.type);
         // Use the default value if value is blank.
-        const defValue = Array.isArray(argType.default) ? argType.default : nullCoalesce(argType.default, "");
+        const def = typeof argType.default === "function" ? await argType.default() : argType.default;
+        const defValue = Array.isArray(def) ? def : nullCoalesce(def, "");
         const value = containsBlank(parsedValue) ? defValue : parsedValue;
 
         // Throw an error if number failed to parse.
@@ -29,10 +30,16 @@ export async function ParseArgs<T>(argTypes: T, argValues: string[]) {
             }
         } else {
             // Throw an error if a value doesn't exist in specified oneOf array.
-            if (argType.oneOf && !argType.oneOf(value as any)) {
+            if (argType.oneOf && !await argType.oneOf(value as any)) {
                 throw new Error(`${name} is invalid!`);
             }
             // Only add the value to the acc obj if a value exists.
+            return [name, value];
+        }
+    }));
+    return args.reduce((acc, arg) => {
+        if (arg) {
+            const [name, value] = arg;
             acc[name as keyof T] = value as any;
         }
         return acc;
