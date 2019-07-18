@@ -16,7 +16,6 @@
     "@tonaljs/tonal": "^3.2.1",
     "discord.js": "^11.5.1",
     "erlpack": "github:discordapp/erlpack",
-    "lodash": "^4.17.11",
     "midi-writer-js": "^1.7.1",
     "node-opus": "^0.3.2",
     "sodium": "^3.0.2"
