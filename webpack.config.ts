@@ -6,7 +6,6 @@ import { Configuration } from "webpack";
 import * as nodeExternals from "webpack-node-externals";
 
 module.exports = {
-    devtool: "source-map",
     target: "node",
     mode: "production",
     entry: "./src/index.ts",
@@ -30,6 +29,7 @@ module.exports = {
         new CopyWebpackPlugin([{
             cache: true,
             from: "src/soundfonts",
+            to: "./soundfonts",
             ignore: ['*.js', '*.ts']
         }]),
         new CleanWebpackPlugin()

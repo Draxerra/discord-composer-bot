@@ -1,12 +1,13 @@
 import { Command } from "utils/commands";
 import * as commands from "commands";
+import { EmbedPagination } from "utils/pagination";
 
 export const help = Command({
     name: "help",
     description: "Lists all the available commands",
     args: {},
     run: msg => {
-        msg.channel.send({embed: {
+        new EmbedPagination({
             color: 3447003,
             title: "Available Commands",
             fields: Object.values(commands).map(command => {
@@ -18,6 +19,6 @@ export const help = Command({
                     value: command.description || "N/A"
                 };
             })
-        }});
+        }).send(msg);
     }
 });

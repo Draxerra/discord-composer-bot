@@ -3,10 +3,10 @@ import * as Config from "config.json";
 import * as Commands from "commands";
 import { generateCfg } from "soundfonts";
 
-generateCfg();
 const client = new Discord.Client();
 
-client.on("ready", () => {
+client.on("ready", async() => {
+    await generateCfg();
     console.log(`Logged in as ${client.user.tag}`);
 });
 

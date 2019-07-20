@@ -1,5 +1,6 @@
 import { NoteEvent, Track, Writer } from "midi-writer-js";
 import Midi from "data/midi";
+import { path } from "soundfonts";
 import { Arg, Command, ParseArgs } from "utils/commands";
 import { Attachment } from "discord.js";
 import { exec } from "child_process";
@@ -40,18 +41,18 @@ export const sheet = Command({
 
                 // Save binary as a temporary midi file.
                 const buffer = Buffer.from(midi.buildFile());
-                await promisify(writeFile)(`${name}.mid`, buffer);
+                await promisify(writeFile)(`${path}/${name}.mid`, buffer);
                 
                 // Convert the midi to pdf.
-                await promisify(exec)(`mscore -d -o '${name}.pdf' '${name}.mid'`);
+                await promisify(exec)(`mscore -d -o '${path}/${name}.pdf' '${path}/${name}.mid'`);
 
                 // Grab the generated pdf as a buffer.
-                const pdf = await promisify(readFile)(`${name}.pdf`);
+                const pdf = await promisify(readFile)(`${path}/${name}.pdf`);
 
                 // Remove the midi and pdf files.
                 await Promise.all([
-                    promisify(unlink)(`${name}.pdf`),
-                    promisify(unlink)(`${name}.mid`)
+                    promisify(unlink)(`${path}/${name}.pdf`),
+                    promisify(unlink)(`${path}/${name}.mid`)
                 ]);
                 
                 // Send the file.

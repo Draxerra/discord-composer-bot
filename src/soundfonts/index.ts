@@ -10,15 +10,17 @@ export interface IInstrument {
     soundfont: string;
 }
 
+export const path = process.env.NODE_ENV === "production" ? "./dist" : "./src";
+
 const getSoundfonts = (async() => {
-    const files = await promisify(readdir)(__dirname);
+    const files = await promisify(readdir)(`${path}/soundfonts`);
     return files.filter(file => (file.split(/\./g).pop() || "").includes("sf"));
 })();
 
 export const Instruments = (async() => {
     const soundfonts = await getSoundfonts;
     return (await Promise.all(soundfonts.map(async(soundfont, i) => {
-        const fluidsynth = await promisify(exec)(`echo 'inst 1' | fluidsynth -n ./src/soundfonts/${soundfont}`);
+        const fluidsynth = await promisify(exec)(`echo 'inst 1' | fluidsynth -n ${path}/soundfonts/${soundfont}`);
         const insts: IInstrument[] = fluidsynth.stdout.split(/\n/g)
             .filter(val => val.match(/^\d+-\d+ .*$/g))
             .map(val => {
@@ -51,13 +53,15 @@ export const generateCfg = async() => {
         acc[instrument.bank].push(instrument);
         return acc;
     }, {} as { [key: number ]: IInstrument[] });
-    await promisify(writeFile)("./src/soundfonts/timidity.cfg", `
-dir ./src/soundfonts
-
-${Object.entries(banks).map(([bank, instruments]) =>
-`bank ${bank}
-    ${instruments.map(instrument => `\t${instrument.instrument} %font ./src/soundfonts/${instrument.soundfont} ${instrument.channel - 1} ${instrument.instrument} #${instrument.name}`).join("\n").trim()}
-`
-).join('\n')}`.trim());
-
+    await promisify(writeFile)(`${path}/soundfonts/timidity.cfg`,
+        `dir ${path}/soundfonts` + '\n\n' +
+        Object.entries(banks).map(([bank, instruments]) =>
+            `bank ${bank}` + '\n' +
+            `${instruments.map(instrument =>
+                '\t' + `${instrument.instrument} ` +
+                `%font ${path}/soundfonts/${instrument.soundfont} ` +
+                `${instrument.channel - 1} ${instrument.instrument} ` +
+                `#${instrument.name}`)
+                .join("\n")}`)
+            .join("\n\n"));
 };

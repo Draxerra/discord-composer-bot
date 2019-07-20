@@ -35,6 +35,7 @@ export enum NotesMap {
     "sixty-fourth" = "64"
 }
 
+
 export interface IExtendedNoteEvent extends INoteEvent {
     instrument: string;
 }

@@ -2,7 +2,7 @@ import { spawn } from "child_process";
 import { NoteEvent, ProgramChangeEvent, Track, Writer } from "midi-writer-js";
 import Midi, { ControllerChangeEvent } from "data/midi";
 import { Arg, Command, ParseArgs } from "utils/commands";
-import { Instruments } from "soundfonts";
+import { Instruments, path } from "soundfonts";
 
 export const play = Command({
     name: "play",
@@ -66,7 +66,7 @@ export const play = Command({
                 const connection = await msg.member.voiceChannel.join();
         
                 // Spawn a timidity instance to play the MIDI buffer with the specified soundfont.
-                const timidity = spawn("timidity", ["-c", "./src/soundfonts/timidity.cfg", "-", "-Ow", "-o", "-"]);
+                const timidity = spawn("timidity", ["-c", `${path}/soundfonts/timidity.cfg`, "-", "-Ow", "-o", "-"]);
                 timidity.stdin.write(buffer);
                 timidity.stdin.end();
                 const dispatcher = connection.playStream(timidity.stdout, { passes: 4, volume: 1, bitrate: 96000 });

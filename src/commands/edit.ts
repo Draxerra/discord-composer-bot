@@ -5,7 +5,7 @@ import { Instruments } from "soundfonts";
 
 export const edit = Command({
     name: "edit",
-    description: "Edits a note (e.g. edit note=1 track=2 pitch=c4 duration=whole velocity=30 wait=dotted-quarter move=1)",
+    description: "Edits a note (e.g. edit note=1 track=2 pitch=c4 duration=whole velocity=30 wait=dotted-quarter instrument=harmonica move=1)",
     args: {
         note: Arg<number>({
             type: Number,
