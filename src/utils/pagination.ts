@@ -147,10 +147,12 @@ interface IChunkTextArgs {
 }
 const chunkText = ({ join, text, limit }: IChunkTextArgs) => {
     return text.split(join).reduce((acc: string[][], word) => {
-        if (acc[acc.length - 1].join(join).length + word.length > limit) {
+        if (acc[acc.length - 1].join(join).length + word.length + join.length > limit) {
             acc.push([]);
         }
         acc[acc.length - 1].push(word);
         return acc;
-    }, [[]]).map(a => a.join(join));
+    }, [[]]).map(a => {
+        return a.join(join);
+    });
 }

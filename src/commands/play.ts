@@ -51,9 +51,9 @@ export const play = Command({
                         const noteInstrument = midiInstrument ? midiInstrument : instruments.find(midiInstrument => 
                             midiInstrument.name === note.instrument);
                         return [
-                            new ControllerChangeEvent({ controllerNumber: 0, controllerValue: noteInstrument ? noteInstrument.bank : 0 }),
-                            new ProgramChangeEvent({ instrument: noteInstrument ? noteInstrument.instrument : 1 }),
-                            new NoteEvent({...note, channel: 1})
+                            new ControllerChangeEvent({controllerNumber: 0, controllerValue: noteInstrument ? noteInstrument.bank : 0 }),
+                            new ProgramChangeEvent({ instrument: noteInstrument ? noteInstrument.program : 1 }),
+                            new NoteEvent(note)
                         ];
                     }).reduce((a, b) => a.concat(b));
                     t.addEvent(events);
@@ -66,7 +66,7 @@ export const play = Command({
                 const connection = await msg.member.voiceChannel.join();
         
                 // Spawn a timidity instance to play the MIDI buffer with the specified soundfont.
-                const timidity = spawn("timidity", ["-c", `${path}/soundfonts/timidity.cfg`, "-", "-Ow", "-o", "-"]);
+                const timidity = spawn("timidity", ["-c", `${path}/soundfonts/timidity.cfg`, "--noise-shaping=1", "-", "-Ow", "-o", "-"]);
                 timidity.stdin.write(buffer);
                 timidity.stdin.end();
                 const dispatcher = connection.playStream(timidity.stdout, { passes: 4, volume: 1, bitrate: 96000 });
