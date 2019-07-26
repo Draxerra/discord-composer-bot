@@ -1,5 +1,5 @@
 import { exec } from "child_process";
-import { readdir, writeFile } from "fs";
+import { readdir, unlink, writeFile } from "fs";
 import { promisify } from "util";
 
 export interface IInstrument {
@@ -22,7 +22,8 @@ export const Instruments = (async() => {
     const soundfonts = await getSoundfonts;
     return (await Promise.all(soundfonts.map(async(soundfont, i) => {
         // Use fluidsynth to get the list of instruments from the soundfonts.
-        const fluidsynth = await promisify(exec)(`echo 'inst 1' | fluidsynth -n ${path}/soundfonts/'${soundfont}'`);
+        const fluidsynth = await promisify(exec)(`echo 'inst 1' | fluidsynth -n -a file ${path}/soundfonts/'${soundfont}'`);
+        await promisify(unlink)("./fluidsynth.wav");
 
         // Split the output into an array from new lines
         const insts = fluidsynth.stdout.split(/\n/g)

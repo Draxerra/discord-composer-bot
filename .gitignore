@@ -3,3 +3,4 @@ dist
 src/soundfonts/*
 !src/soundfonts/*.ts
 config.json
+fluidsynth.wav

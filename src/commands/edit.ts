@@ -18,7 +18,7 @@ export const edit = Command({
         pitch: Arg<string[] | undefined>({
             type: String,
             splitChar: "+",
-            oneOf: val => val.every(pitch => note(pitch).name)
+            oneOf: val => val.every(pitch => note(pitch).name && pitch.match(/\d/g))
         }),
         duration: Arg<TDuration[] | undefined>({
             type: String,

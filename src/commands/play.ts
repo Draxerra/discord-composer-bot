@@ -19,14 +19,24 @@ export const play = Command({
             type: Number,
             default: [1],
             splitChar: "+"
+        }),
+        tempo: Arg<number>({
+            type: Number,
+            default: 120
         })
     },
     run: (msg, client, args) => {
-        ParseArgs(play.args, args).then(async({ instrument, tracks }) => {
+        ParseArgs(play.args, args).then(async({ instrument, tracks, tempo }) => {
             try {
                 // Throw an error if the user is not in a voice channel.
                 if (!msg.member.voiceChannel) {
                     msg.reply("you need to join a voice channel first!");
+                    return;
+                }
+
+                // Throw an error if tempo is less than 1.
+                if (tempo < 1) {
+                    msg.reply("tempo cannot be lower than 1!");
                     return;
                 }
 
@@ -66,7 +76,7 @@ export const play = Command({
                 const connection = await msg.member.voiceChannel.join();
         
                 // Spawn a timidity instance to play the MIDI buffer with the specified soundfont.
-                const timidity = spawn("timidity", ["-c", `${path}/soundfonts/timidity.cfg`, "--noise-shaping=1", "-", "-Ow", "-o", "-"]);
+                const timidity = spawn("timidity", ["-c", `${path}/soundfonts/timidity.cfg`, "--noise-shaping=1", `--adjust-tempo=${tempo}`, "-", "-Ow", "-o", "-"]);
                 timidity.stdin.write(buffer);
                 timidity.stdin.end();
                 const dispatcher = connection.playStream(timidity.stdout, { passes: 4, volume: 1, bitrate: 96000 });

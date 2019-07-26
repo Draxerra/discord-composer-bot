@@ -14,7 +14,7 @@ export const add = Command({
             type: String,
             required: true,
             splitChar: "+",
-            oneOf: val => val.every(pitch => note(pitch).name)
+            oneOf: val => val.every(pitch => note(pitch).name && pitch.match(/\d/g))
         }),
         duration: Arg<TDuration[]>({
             type: String,
