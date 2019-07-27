@@ -1,8 +1,9 @@
 import { spawn } from "child_process";
 import { NoteEvent, ProgramChangeEvent, Track, Writer } from "midi-writer-js";
-import Midi, { ControllerChangeEvent } from "data/midi";
+import Midi, { ControllerChangeEvent, TempoEvent, KeySignatureEvent, TimeSignatureEvent } from "data/midi";
 import { Arg, Command, ParseArgs } from "utils/commands";
 import { Instruments, path } from "soundfonts";
+import { scale } from "@tonaljs/scale";
 
 export const play = Command({
     name: "play",
@@ -20,13 +21,20 @@ export const play = Command({
             default: [1],
             splitChar: "+"
         }),
-        tempo: Arg<number>({
+        tempo: Arg<number | undefined>({
+            type: Number
+        }),
+        timeSignature: Arg<number[] | undefined>({
             type: Number,
-            default: 120
-        })
+            splitChar: '/'
+        }),
+        keySignature: Arg<string | undefined>({
+            type: String,
+            oneOf: val => scale(val).notes.length ? true : false
+        }),
     },
     run: (msg, client, args) => {
-        ParseArgs(play.args, args).then(async({ instrument, tracks, tempo }) => {
+        ParseArgs(play.args, args).then(async({ instrument, tracks, tempo, timeSignature, keySignature }) => {
             try {
                 // Throw an error if the user is not in a voice channel.
                 if (!msg.member.voiceChannel) {
@@ -35,7 +43,7 @@ export const play = Command({
                 }
 
                 // Throw an error if tempo is less than 1.
-                if (tempo < 1) {
+                if (tempo && tempo < 1) {
                     msg.reply("tempo cannot be lower than 1!");
                     return;
                 }
@@ -60,11 +68,18 @@ export const play = Command({
                     const events = Midi[track - 1].map(note => {
                         const noteInstrument = midiInstrument ? midiInstrument : instruments.find(midiInstrument => 
                             midiInstrument.name === note.instrument);
+                        const noteTempo = tempo ? tempo : note.tempo;
+                        const noteTimeSignature = timeSignature ? timeSignature : note.timeSignature;
+                        const noteKeySignature = keySignature ? keySignature : note.keySignature;
+                        
                         return [
+                            noteTempo ? new TempoEvent(noteTempo) : undefined,
+                            noteTimeSignature ? new TimeSignatureEvent(noteTimeSignature[0], noteTimeSignature[1]) : undefined,
+                            noteKeySignature ? new KeySignatureEvent(noteKeySignature) : undefined,
                             new ControllerChangeEvent({controllerNumber: 0, controllerValue: noteInstrument ? noteInstrument.bank : 0 }),
                             new ProgramChangeEvent({ instrument: noteInstrument ? noteInstrument.program : 1 }),
                             new NoteEvent(note)
-                        ];
+                        ].filter(a => a);
                     }).reduce((a, b) => a.concat(b));
                     t.addEvent(events);
                     return t;
@@ -76,7 +91,7 @@ export const play = Command({
                 const connection = await msg.member.voiceChannel.join();
         
                 // Spawn a timidity instance to play the MIDI buffer with the specified soundfont.
-                const timidity = spawn("timidity", ["-c", `${path}/soundfonts/timidity.cfg`, "--noise-shaping=1", `--adjust-tempo=${tempo}`, "-", "-Ow", "-o", "-"]);
+                const timidity = spawn("timidity", ["-c", `${path}/soundfonts/timidity.cfg`, "--noise-shaping=1", "-", "-Ow", "-o", "-"]);
                 timidity.stdin.write(buffer);
                 timidity.stdin.end();
                 const dispatcher = connection.playStream(timidity.stdout, { passes: 4, volume: 1, bitrate: 96000 });

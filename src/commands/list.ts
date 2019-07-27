@@ -2,6 +2,7 @@ import { Arg, Command, ParseArgs } from "utils/commands";
 import { EmbedPagination } from "utils/pagination";
 import Midi, { NotesMap } from "data/midi";
 import { Notes } from "midi-writer-js";
+import { Instruments, path } from "soundfonts";
 
 const capitalize = (str: string) => {
     return str.replace(/^.|(?<=\s)./g, char => char.toUpperCase());
@@ -24,8 +25,9 @@ export const list = Command({
         })
     },
     run: (msg, client, args) => {
-        ParseArgs(list.args, args).then(({ track }) => {
+        ParseArgs(list.args, args).then(async({ track }) => {
             const selectedTrack = Midi[track - 1];
+            const instruments = await Instruments;
 
             // Throw an error if track does not exist.
             if (!selectedTrack) {
@@ -40,11 +42,16 @@ export const list = Command({
                 fields: selectedTrack.map((note, j) => {
                     const duration = getNoteNames(note.duration);
                     const wait = getNoteNames(note.wait);
+                    const noteInstrument = instruments.find(midiInstrument => 
+                        midiInstrument.name === note.instrument);
                     return {
                         name: `Note ${j + 1}`,
                         value: `${note.pitch.join("+")} ` +
                         `(Duration: ${duration.join("+")}` +
                         `${wait.length ? `, Wait: ${wait.join("+")}` : ""}, ` +
+                        `Instrument: ${noteInstrument ? noteInstrument.name : ""}, ` +
+                        `${note.tempo ? `Tempo Change: ${note.tempo}, ` : ""}` +
+                        `${note.timeSignature ? `Time Signature Change: ${note.timeSignature.join('/')}, ` : ""}` +
                         `Velocity: ${note.velocity})`
                     };
                 })

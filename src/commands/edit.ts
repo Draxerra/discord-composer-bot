@@ -1,6 +1,7 @@
 import { Arg, Command, ParseArgs } from "utils/commands";
 import Midi, { Notes, NotesMap, TDuration } from "data/midi";
 import { note } from "@tonaljs/tonal";
+import { scale } from "@tonaljs/scale";
 import { Instruments } from "soundfonts";
 
 export const edit = Command({
@@ -42,7 +43,18 @@ export const edit = Command({
         }),
         move: Arg<number | undefined>({
             type: Number
-        })
+        }),
+        tempo: Arg<number | undefined>({
+            type: Number
+        }),
+        timeSignature: Arg<number[] | undefined>({
+            type: Number,
+            splitChar: '/'
+        }),
+        keySignature: Arg<string | undefined>({
+            type: String,
+            oneOf: val => scale(val).notes.length ? true : false
+        }),
     },
     run: (msg, client, args) => {
         ParseArgs(edit.args, args).then(({ note, track, move, ...event }) => {
@@ -63,12 +75,15 @@ export const edit = Command({
             }
 
             // Alter the values.
-            const { pitch, duration, wait, velocity, instrument } = event;
+            const { pitch, duration, wait, velocity, instrument, tempo, timeSignature, keySignature } = event;
             selectedNote.pitch = pitch !== undefined ? pitch : selectedNote.pitch;
             selectedNote.duration = duration !== undefined ? duration.map(item => NotesMap[item]) : selectedNote.duration;
             selectedNote.wait = wait !== undefined ? wait.map(item => NotesMap[item]) : selectedNote.wait;
             selectedNote.velocity = velocity !== undefined ? velocity : selectedNote.velocity;
             selectedNote.instrument = instrument !== undefined ? instrument : selectedNote.instrument;
+            selectedNote.tempo = tempo !== undefined ? tempo : selectedNote.tempo;
+            selectedNote.timeSignature = timeSignature ? timeSignature : selectedNote.timeSignature;
+            selectedNote.keySignature = keySignature ? keySignature : selectedNote.keySignature;
 
             if (move !== undefined) {
 

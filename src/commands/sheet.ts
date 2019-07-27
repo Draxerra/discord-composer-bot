@@ -1,11 +1,12 @@
 import { NoteEvent, Track, Writer } from "midi-writer-js";
-import Midi from "data/midi";
+import Midi, { KeySignatureEvent, TempoEvent, TimeSignatureEvent } from "data/midi";
 import { path } from "soundfonts";
 import { Arg, Command, ParseArgs } from "utils/commands";
 import { Attachment } from "discord.js";
 import { exec } from "child_process";
 import { readFile, writeFile, unlink } from "fs"; 
 import { promisify } from "util";
+import { scale } from "@tonaljs/scale";
 
 export const sheet = Command({
     name: "sheet",
@@ -19,10 +20,21 @@ export const sheet = Command({
             type: Number,
             default: [1],
             splitChar: "+"
-        })
+        }),
+        tempo: Arg<number | undefined>({
+            type: Number
+        }),
+        timeSignature: Arg<number[] | undefined>({
+            type: Number,
+            splitChar: '/'
+        }),
+        keySignature: Arg<string | undefined>({
+            type: String,
+            oneOf: val => scale(val).notes.length ? true : false
+        }),
     },
     run: (msg, client, args) => {
-        ParseArgs(sheet.args, args).then(async({ name, tracks }) => {
+        ParseArgs(sheet.args, args).then(async({ name, tracks, tempo, timeSignature, keySignature }) => {
             try {
                 // Throw an error if any tracks specified to be played are empty.
                 const indexes = tracks.filter(track => !(Midi[track - 1] && Midi[track-1].length));
@@ -34,7 +46,19 @@ export const sheet = Command({
                 // Comnvert the multi-dimensional array of notes to midi binary.
                 const midi = new Writer(tracks.map(track => {
                     const t = new Track();
-                    t.addEvent(Midi[track - 1].map(note => new NoteEvent(note)));
+                    const events = Midi[track - 1].map(note => {
+                        const noteTempo = tempo ? tempo : note.tempo;
+                        const noteTimeSignature = timeSignature ? timeSignature : note.timeSignature;
+                        const noteKeySignature = keySignature ? keySignature : note.keySignature;
+                        
+                        return [
+                            noteTempo ? new TempoEvent(noteTempo) : undefined,
+                            noteTimeSignature ? new TimeSignatureEvent(noteTimeSignature[0], noteTimeSignature[1]) : undefined,
+                            noteKeySignature ? new KeySignatureEvent(noteKeySignature) : undefined,
+                            new NoteEvent(note)
+                        ].filter(a => a)
+                    }).reduce((a, b) => a.concat(b));
+                    t.addEvent(events);
                     return t;
                 }));
                 msg.reply("generating sheet music...");

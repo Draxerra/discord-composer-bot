@@ -13,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "@discordjs/uws": "^11.149.1",
+    "@tonaljs/scale": "^3.2.1",
     "@tonaljs/tonal": "^3.2.1",
     "discord.js": "^11.5.1",
     "erlpack": "github:discordapp/erlpack",
