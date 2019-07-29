@@ -2,6 +2,7 @@ import * as Discord from "discord.js";
 import * as Config from "config.json";
 import * as Commands from "commands";
 import { generateCfg } from "soundfonts";
+import { ParseArgs } from "utils/commands";
 
 const client = new Discord.Client();
 
@@ -24,7 +25,13 @@ client.on("message", async msg => {
             return acc;
         }, [] as string[]);
         if (commandFile) {
-            commandFile.run(msg, client, parsedCommand);
+            try {
+                const parsedArgs = await ParseArgs(commandFile.args, parsedCommand);
+                commandFile.run(msg, parsedArgs);
+            }
+            catch (err) {
+                msg.reply(err.message);
+            }
         } else {
             msg.reply("invalid command! Type help for a list of commands.");
         }

@@ -5,7 +5,7 @@ export const addTrack = Command({
     name: "add-track",
     description: "Adds a new track",
     args: {},
-    run: (msg) => {
+    run: msg => {
         Midi.push([]);
         msg.reply(`Added track no. ${Midi.length}!`);
     },

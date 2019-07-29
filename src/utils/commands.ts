@@ -8,7 +8,7 @@ export interface ICommand<T> {
     name: string;
     description: string;
     args: T;
-    run(msg: Message, client: Client, args: string[]): void;
+    run(msg: Message, args: GetGeneric<T>): void;
 }
 
 export interface ICommandArgs<T = TArgValue> {
@@ -17,6 +17,7 @@ export interface ICommandArgs<T = TArgValue> {
 
 export interface ICommandArg<T> {
     type: StringConstructor | NumberConstructor;
+    example: T;
     required?: boolean;
     default?: T | (() => T | Promise<T>);
     splitChar?: string;
